@@ -167,7 +167,7 @@ async function syncToSheets(data) {
       method: "POST",
       mode: "no-cors", // Required for Google Apps Script Web App redirections
       cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(data),
     });
     console.log("✅ Sync request sent to Apps Script");
