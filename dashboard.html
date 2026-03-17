@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة تسجيل المخالفات — We School</title>
+  <meta name="description" content="لوحة التحكم لتسجيل مخالفات الطلاب — We School of Applied Technology" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+  <!-- ===== TOP NAV ===== -->
+  <nav class="topnav" id="topnav">
+    <div class="topnav-inner">
+      <!-- Brand -->
+      <div class="nav-brand">
+        <div class="nav-logo">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="url(#navgrad)"/>
+            <path d="M20 8L32 15V25L20 32L8 25V15L20 8Z" stroke="white" stroke-width="2.2" stroke-linejoin="round" fill="rgba(255,255,255,0.15)"/>
+            <path d="M20 14L27 18V26L20 30L13 26V18L20 14Z" fill="white" fill-opacity="0.9"/>
+            <defs>
+              <linearGradient id="navgrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="nav-title">نظام المخالفات</span>
+      </div>
+
+      <!-- User + Logout -->
+      <div class="nav-actions">
+        <div class="user-badge">
+          <div class="user-avatar" id="user-avatar">ق</div>
+          <span class="user-name" id="user-display-name">القائد</span>
+        </div>
+        <button class="btn-logout" id="logout-btn" title="تسجيل الخروج">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>خروج</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- Success toast -->
+    <div class="toast toast-success" id="success-toast" role="alert" aria-live="polite">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <span>تم تسجيل المخالفة بنجاح ✓</span>
+    </div>
+
+    <!-- Error toast -->
+    <div class="toast toast-error" id="error-toast" role="alert" aria-live="polite">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="error-toast-msg">حدث خطأ، حاول مرة أخرى</span>
+    </div>
+
+    <div class="page-grid">
+
+      <!-- ===== VIOLATIONS FORM ===== -->
+      <section class="card form-card">
+        <div class="card-header">
+          <div class="card-icon card-icon--primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">تسجيل مخالفة جديدة</h2>
+            <p class="card-subtitle">أدخل بيانات المخالفة بالكامل</p>
+          </div>
+        </div>
+
+        <form id="violation-form" novalidate>
+          <div class="form-grid">
+
+            <!-- اسم الطالب -->
+            <div class="form-group">
+              <label for="student-name">اسم الطالب <span class="required">*</span></label>
+              <input type="text" id="student-name" placeholder="الاسم الكامل للطالب" required />
+            </div>
+
+            <!-- الفصل -->
+            <div class="form-group">
+              <label for="class-name">الفصل <span class="required">*</span></label>
+              <input type="text" id="class-name" placeholder="مثال: 10-A" required />
+            </div>
+
+            <!-- المخالفة -->
+            <div class="form-group full-width">
+              <label for="violation-desc">المخالفة <span class="required">*</span></label>
+              <input type="text" id="violation-desc" placeholder="وصف المخالفة بالتفصيل" required />
+            </div>
+
+            <!-- تصنيف المخالفة -->
+            <div class="form-group">
+              <label for="violation-category">تصنيف المخالفة <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select id="violation-category" required>
+                  <option value="" disabled selected>اختر التصنيف</option>
+                  <optgroup label="سلوكية">
+                    <option value="عنف لفظي">عنف لفظي</option>
+                    <option value="عنف جسدي">عنف جسدي</option>
+                    <option value="تنمر">تنمر</option>
+                    <option value="سوء أدب">سوء أدب</option>
+                  </optgroup>
+                  <optgroup label="أكاديمية">
+                    <option value="تأخر عن الحصة">تأخر عن الحصة</option>
+                    <option value="غياب بدون إذن">غياب بدون إذن</option>
+                    <option value="عدم إحضار الواجب">عدم إحضار الواجب</option>
+                    <option value="غش">غش</option>
+                  </optgroup>
+                  <optgroup label="مظهر">
+                    <option value="مخالفة الزي">مخالفة الزي</option>
+                    <option value="استخدام الجوال">استخدام الجوال</option>
+                  </optgroup>
+                  <optgroup label="أخرى">
+                    <option value="مخالفة أخرى">مخالفة أخرى</option>
+                  </optgroup>
+                </select>
+                <span class="select-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- معدل التكرار -->
+            <div class="form-group">
+              <label for="repeat-count">معدل التكرار <span class="required">*</span></label>
+              <div class="number-input-wrapper">
+                <button type="button" class="num-btn" id="num-minus" aria-label="تقليل">−</button>
+                <input type="number" id="repeat-count" value="1" min="1" max="99" required />
+                <button type="button" class="num-btn" id="num-plus" aria-label="زيادة">+</button>
+              </div>
+            </div>
+
+            <!-- ملاحظات -->
+            <div class="form-group full-width">
+              <label for="notes">ملاحظات إضافية</label>
+              <textarea id="notes" rows="3" placeholder="أي ملاحظات إضافية (اختياري)"></textarea>
+            </div>
+
+          </div>
+
+          <!-- Submit -->
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="clear-btn">مسح الحقول</button>
+            <button type="submit" class="btn-primary" id="submit-btn">
+              <span class="btn-text">تسجيل المخالفة</span>
+              <span class="btn-spinner" id="submit-spinner" hidden>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" opacity=".25"/>
+                  <path d="M21 12a9 9 0 0 1-9 9" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== RECENT VIOLATIONS ===== -->
+      <section class="card table-card">
+        <div class="card-header">
+          <div class="card-icon card-icon--secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">المخالفات المسجلة</h2>
+            <p class="card-subtitle">آخر <span id="violations-count">0</span> مخالفة سجلتها</p>
+          </div>
+        </div>
+
+        <div class="table-wrapper" id="table-wrapper">
+          <!-- Loading state -->
+          <div class="empty-state" id="loading-state">
+            <div class="spinner-large"></div>
+            <p>جارٍ تحميل البيانات...</p>
+          </div>
+
+          <!-- Empty state -->
+          <div class="empty-state" id="empty-state" hidden>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p>لا توجد مخالفات مسجلة بعد</p>
+          </div>
+
+          <!-- Table -->
+          <div class="table-scroll" id="table-scroll" hidden>
+            <table>
+              <thead>
+                <tr>
+                  <th>اسم الطالب</th>
+                  <th>الفصل</th>
+                  <th>التصنيف</th>
+                  <th>التكرار</th>
+                  <th>التاريخ</th>
+                </tr>
+              </thead>
+              <tbody id="violations-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

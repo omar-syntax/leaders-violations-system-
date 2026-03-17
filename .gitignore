@@ -1,0 +1,26 @@
+# ---- Firebase ----
+.firebaserc
+firebase-debug.log
+.firebase/
+
+# ---- Functions ----
+functions/node_modules/
+functions/.env
+
+# ---- Secrets (NEVER commit these) ----
+*service-account*.json
+*serviceAccount*.json
+*credentials*.json
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Editor ----
+.vscode/
+.idea/
+*.sublime-workspace
+
+# ---- Git ----
+.git/
