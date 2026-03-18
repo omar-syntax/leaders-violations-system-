@@ -66,6 +66,7 @@ body {
 }
 
 .nav-brand { display: flex; align-items: center; gap: 12px; }
+.nav-logo-img { height: 38px; width: auto; display: block; filter: drop-shadow(0 0 8px rgba(0, 198, 255, 0.3)); }
 .nav-title  { font-size: 1rem; font-weight: 700; }
 
 .nav-actions { display: flex; align-items: center; gap: 16px; }
