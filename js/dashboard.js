@@ -21,6 +21,10 @@ import {
 // !! IMPORTANT: Replace this with your Google Apps Script Web App URL !!
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgkjdNxkmfeWLbr5lwr_xlA_A_izcn_Xvy2TRU-iLk-E27IdvT5EW-Ytuy6wSD8LOEQw/exec";
 
+if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PASTE_YOUR_APPS_SCRIPT_URL")) {
+  console.warn("⚠️ Google Apps Script URL is not set. Synchronization with Google Sheets will be disabled.");
+}
+
 // ---- Elements ----
 const userDisplayName = document.getElementById("user-display-name");
 const userAvatar      = document.getElementById("user-avatar");
@@ -215,18 +219,21 @@ form.addEventListener("submit", async (e) => {
 //  SYNC TO SHEETS (Apps Script)
 // =============================================
 async function syncToSheets(data) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PASTE_YOUR_APPS_SCRIPT_URL")) return;
+
   try {
     // Filter out unwanted fields (Firestore objects and internal IDs)
-    // We remove timestamp because Apps Script generates its own,
-    // and leaderUid/leaderEmail are not needed in the spreadsheet.
+    // We remove timestamp because Apps Script generates its own for consistency.
     const { timestamp, leaderUid, leaderEmail, ...filteredData } = data;
 
-    // Using URLSearchParams (Form Data) is more reliable for no-cors with Apps Script
+    // We use Form Data (URLSearchParams) as it's the most compatible with Apps Script no-cors mode
     const formData = new URLSearchParams();
     for (const key in filteredData) {
       formData.append(key, filteredData[key]);
     }
 
+    // Since we're using no-cors, we won't get a response body.
+    // This is a standard limitation for public Apps Script web apps.
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -234,9 +241,10 @@ async function syncToSheets(data) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: formData.toString(),
     });
-    console.log("✅ Sync request sent to Apps Script");
+
+    console.log("✅ Sync request sent to Google Sheets via Apps Script");
   } catch (err) {
-    console.error("❌ Sync error:", err);
+    console.warn("❌ Google Sheets Sync Error (this won't affect Firestore):", err);
   }
 }
 
