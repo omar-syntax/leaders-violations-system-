@@ -5,19 +5,18 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --primary:       #667eea;
-  --primary-dark:  #5a6fd6;
-  --secondary:     #764ba2;
-  --bg:            #0f0f1a;
-  --surface:       rgba(255,255,255,0.05);
-  --surface-hover: rgba(255,255,255,0.08);
-  --border:        rgba(255,255,255,0.1);
-  --text:          #f0f0f8;
-  --text-muted:    rgba(240,240,248,0.55);
-  --error:         #ff6b6b;
-  --error-bg:      rgba(255,107,107,0.12);
-  --radius:        14px;
-  --shadow:        0 32px 80px rgba(0,0,0,0.55);
+  --bg:            #060b14;
+  --surface:       #0d1520;
+  --surface-2:     #131c2b;
+  --border:        #1a2d45;
+  --accent:        #00c6ff;
+  --accent-2:      #0072ff;
+  --text:          #e8f4fd;
+  --text-muted:    #5a7a96;
+  --error:         #ff4d6d;
+  --error-bg:      rgba(255, 77, 109, 0.1);
+  --radius:        20px;
+  --shadow:        0 25px 50px rgba(0,0,0,0.5);
 }
 
 html { font-size: 16px; }
@@ -25,6 +24,12 @@ html { font-size: 16px; }
 body {
   font-family: 'Cairo', sans-serif;
   background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 50% -10%, rgba(0, 198, 255, 0.2), transparent 50%),
+    linear-gradient(rgba(26, 45, 69, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 45, 69, 0.1) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
   display: flex;
@@ -32,20 +37,16 @@ body {
   justify-content: center;
   overflow: hidden;
   position: relative;
+  animation: gridMove 20s linear infinite;
 }
 
-/* ---- Animated Background Blobs ---- */
-.bg-blob {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.35;
-  pointer-events: none;
-  animation: drift 12s ease-in-out infinite alternate;
+@keyframes gridMove {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to { background-position: 0 0, 0 40px, 40px 0; }
 }
-.blob-1 { width: 520px; height: 520px; background: radial-gradient(circle, #667eea, transparent); top: -180px; right: -140px; animation-delay: 0s; }
-.blob-2 { width: 420px; height: 420px; background: radial-gradient(circle, #764ba2, transparent); bottom: -160px; left: -100px; animation-delay: -5s; }
-.blob-3 { width: 300px; height: 300px; background: radial-gradient(circle, #f093fb, transparent); top: 50%; left: 55%; animation-delay: -9s; }
+
+/* Hide old blobs as they are no longer used */
+.bg-blob { display: none; }
 
 @keyframes drift {
   from { transform: translate(0, 0) scale(1); }
@@ -56,17 +57,25 @@ body {
 .login-wrapper { position: relative; z-index: 1; width: 100%; padding: 20px; }
 
 .login-card {
-  background: rgba(20, 20, 38, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: var(--radius);
   padding: 48px 44px;
   width: 100%;
   max-width: 440px;
   margin: 0 auto;
   box-shadow: var(--shadow);
-  animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  position: relative;
+  overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  opacity: 0.8;
 }
 
 @keyframes slideUp {
@@ -88,7 +97,7 @@ body {
 
 /* ---- Login Title ---- */
 .login-title { text-align: center; margin-bottom: 36px; }
-.login-title h2 { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.login-title h2 { font-size: 1.56rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.01em; }
 .login-title p  { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; }
 
 /* ---- Form ---- */
@@ -169,10 +178,10 @@ body {
 /* ---- Login Button ---- */
 .btn-login {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   border: none;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
   color: #fff;
   font-family: 'Cairo', sans-serif;
   font-size: 1rem;
@@ -182,8 +191,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 4px 20px rgba(102,126,234,0.35);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 6px 20px rgba(0, 114, 255, 0.35);
   position: relative;
   overflow: hidden;
 }
