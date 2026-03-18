@@ -38,10 +38,25 @@ const emptyState      = document.getElementById("empty-state");
 const tableScroll     = document.getElementById("table-scroll");
 const tbody           = document.getElementById("violations-tbody");
 
-// Number input controls
-const numMinus = document.getElementById("num-minus");
-const numPlus  = document.getElementById("num-plus");
+// Number input controls (Old - kept for reference or removal)
 const repeatInput = document.getElementById("repeat-count");
+
+// Searchable Dropdown elements
+const categorySearch = document.getElementById("category-search");
+const categoryHidden = document.getElementById("violation-category");
+const categoryOptions = document.getElementById("category-options");
+
+const VIOLATION_CATEGORIES = [
+  "تعطيل الحصص الدراسية للمعلم أثناء", "عدم إحضار الأدوات", "الهروب من المدرسة", "عدم تهذيب الشعر",
+  "مخالفة الزي المدرسي", "الإضرار بالبيئة المدرسية", "إتلاف وسائل ومصادر التعليم", "إحضار مواد خطرة أو أسلحة",
+  "حيازة مخدرات أو تعاطيها", "إحضار مواد مخلة", "الغش في الامتحان", "حالات الفصل من المدرسة",
+  "استخدام الموبايل أثناء الحصة", "التعصب الديني أو القبلي", "المشاجرات البسيطة", "استخدام ألفاظ غير لائقة",
+  "التطاول على المدرس", "المشاجرات مع وقوع ضرر", "التنمر", "التحرش", "مشكلات عاطفية مع الجنس الآخر",
+  "السرقة", "عدم ارتداء أدوات السيفني أو الإجراءات", "عدم نظافة الأظافر وطول الأظافر", "التدخين داخل المدرسة",
+  "إحضار ألعاب نارية داخل المدرسة", "عدم الالتزام بمواعيد الحصص", "عدم الانضباط أثناء الطابور",
+  "سوء سلوك في الحصة", "وضع مكياج للطالبات", "استخدام تابلت في الحصة", "ارتداء اكسسوار",
+  "النوم في الحصة", "تناول الطعام في الحصة", "الردود غير المناسبة على المعلم", "عدم القيام بالواجبات المدرسية"
+];
 
 // ---- Current user ----
 let currentUser = null;
@@ -79,16 +94,56 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 // =============================================
-//  NUMBER INPUT
+//  SEARCHABLE DROPDOWN LOGIC
 // =============================================
-numMinus.addEventListener("click", () => {
-  const val = parseInt(repeatInput.value) || 1;
-  if (val > 1) repeatInput.value = val - 1;
-});
-numPlus.addEventListener("click", () => {
-  const val = parseInt(repeatInput.value) || 1;
-  if (val < 99) repeatInput.value = val + 1;
-});
+function setupSearchableDropdown() {
+  const renderOptions = (filter = "") => {
+    categoryOptions.innerHTML = "";
+    const filtered = VIOLATION_CATEGORIES.filter(c => c.includes(filter));
+
+    if (filtered.length === 0) {
+      categoryOptions.innerHTML = `<div class="search-option no-results">لا توجد نتائج</div>`;
+    } else {
+      filtered.forEach(cat => {
+        const div = document.createElement("div");
+        div.className = "search-option";
+        div.textContent = cat;
+        div.addEventListener("click", () => {
+          categorySearch.value = cat;
+          categoryHidden.value = cat;
+          categoryOptions.hidden = true;
+          categorySearch.classList.remove("invalid");
+        });
+        categoryOptions.appendChild(div);
+      });
+    }
+  };
+
+  categorySearch.addEventListener("focus", () => {
+    renderOptions(categorySearch.value);
+    categoryOptions.hidden = false;
+  });
+
+  categorySearch.addEventListener("input", () => {
+    renderOptions(categorySearch.value);
+    categoryOptions.hidden = false;
+    // Clear hidden value if it doesn't match exactly
+    if (!VIOLATION_CATEGORIES.includes(categorySearch.value)) {
+      categoryHidden.value = "";
+    } else {
+      categoryHidden.value = categorySearch.value;
+    }
+  });
+
+  // Hide when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".searchable-wrapper")) {
+      categoryOptions.hidden = true;
+    }
+  });
+}
+
+setupSearchableDropdown();
 
 // =============================================
 //  SUBMIT FORM
@@ -101,8 +156,8 @@ form.addEventListener("submit", async (e) => {
   const studentName = document.getElementById("student-name").value.trim();
   const className   = document.getElementById("class-name").value.trim();
   const violationDesc = document.getElementById("violation-desc").value.trim();
-  const category    = document.getElementById("violation-category").value;
-  const repeatCount = parseInt(repeatInput.value) || 1;
+  const category    = categoryHidden.value;
+  const repeatCount = repeatInput.value;
   const notes       = document.getElementById("notes").value.trim();
 
   // Basic validation
@@ -111,7 +166,7 @@ form.addEventListener("submit", async (e) => {
     { id: "student-name",        val: studentName },
     { id: "class-name",          val: className },
     { id: "violation-desc",      val: violationDesc },
-    { id: "violation-category",  val: category },
+    { id: "category-search",     val: category }, // Check hidden category value
   ].forEach(({ id, val }) => {
     const el = document.getElementById(id);
     if (!val) { el.classList.add("invalid"); valid = false; }
@@ -161,14 +216,23 @@ form.addEventListener("submit", async (e) => {
 // =============================================
 async function syncToSheets(data) {
   try {
-    // Note: We don't wait for this to finish (fire and forget or background sync)
-    // but we log the result.
-    const response = await fetch(APPS_SCRIPT_URL, {
+    // Filter out unwanted fields (Firestore objects and internal IDs)
+    // We remove timestamp because Apps Script generates its own,
+    // and leaderUid/leaderEmail are not needed in the spreadsheet.
+    const { timestamp, leaderUid, leaderEmail, ...filteredData } = data;
+
+    // Using URLSearchParams (Form Data) is more reliable for no-cors with Apps Script
+    const formData = new URLSearchParams();
+    for (const key in filteredData) {
+      formData.append(key, filteredData[key]);
+    }
+
+    await fetch(APPS_SCRIPT_URL, {
       method: "POST",
-      mode: "no-cors", // Required for Google Apps Script Web App redirections
+      mode: "no-cors",
       cache: "no-cache",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString(),
     });
     console.log("✅ Sync request sent to Apps Script");
   } catch (err) {
@@ -183,7 +247,9 @@ clearBtn.addEventListener("click", clearForm);
 
 function clearForm() {
   form.reset();
-  repeatInput.value = 1;
+  categorySearch.value = "";
+  categoryHidden.value = "";
+  repeatInput.value = "غير متكرر";
   form.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
 }
 
@@ -220,11 +286,12 @@ function listenToViolations(uid) {
         : "—";
 
       const tr = document.createElement("tr");
+      const repeatClass = d.repeatCount === "متكرر جداً" ? "high" : (d.repeatCount === "متكرر" ? "med" : "");
       tr.innerHTML = `
         <td>${escapeHtml(d.studentName)}</td>
         <td><span class="badge">${escapeHtml(d.className)}</span></td>
         <td>${escapeHtml(d.category)}</td>
-        <td><span class="repeat-pill ${d.repeatCount >= 3 ? 'high' : ''}">${d.repeatCount}</span></td>
+        <td><span class="repeat-pill ${repeatClass}">${escapeHtml(d.repeatCount)}</span></td>
         <td class="date-cell">${dateStr}</td>
       `;
       tbody.appendChild(tr);

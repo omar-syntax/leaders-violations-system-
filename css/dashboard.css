@@ -207,17 +207,38 @@ body {
 .select-arrow { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted); }
 .form-group select option { background: #1a1a2e; }
 
-/* Number input */
-.number-input-wrapper { display: flex; align-items: center; gap: 6px; }
-.number-input-wrapper input { text-align: center; padding: 11px 8px; }
-.num-btn {
-  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-  background: var(--surface-2); border: 1px solid var(--border);
-  color: var(--text); font-size: 1.2rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s, color 0.2s;
+/* Searchable Select */
+.searchable-group { position: relative; }
+.searchable-wrapper { position: relative; }
+.searchable-wrapper input { padding-left: 40px; }
+.search-options {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0; right: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  background: #1a1a2e;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.num-btn:hover { background: rgba(102,126,234,0.2); color: var(--primary); border-color: var(--primary); }
+.search-option {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.search-option:last-child { border-bottom: none; }
+.search-option:hover { background: var(--surface-hover); color: var(--primary); }
+.search-option.no-results { color: var(--text-muted); cursor: default; text-align: center; }
+
+/* Custom Scrollbar for dropdown */
+.search-options::-webkit-scrollbar { width: 6px; }
+.search-options::-webkit-scrollbar-track { background: transparent; }
+.search-options::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+.search-options::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* Form Actions */
 .form-actions {
@@ -315,10 +336,12 @@ tbody td {
 
 .repeat-pill {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; border-radius: 50%;
+  padding: 3px 10px; border-radius: 20px;
   background: rgba(240,147,251,0.15); color: var(--accent);
-  font-size: 0.8rem; font-weight: 800;
+  font-size: 0.75rem; font-weight: 700;
+  white-space: nowrap;
 }
+.repeat-pill.med  { background: rgba(102,126,234,0.15); color: var(--primary); }
 .repeat-pill.high { background: rgba(255,107,107,0.15); color: var(--error); }
 
 .date-cell { color: var(--text-muted); font-size: 0.8rem; }

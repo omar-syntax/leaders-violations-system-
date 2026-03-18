@@ -109,32 +109,15 @@
               <input type="text" id="violation-desc" placeholder="وصف المخالفة بالتفصيل" required />
             </div>
 
-            <!-- تصنيف المخالفة -->
-            <div class="form-group">
-              <label for="violation-category">تصنيف المخالفة <span class="required">*</span></label>
-              <div class="select-wrapper">
-                <select id="violation-category" required>
-                  <option value="" disabled selected>اختر التصنيف</option>
-                  <optgroup label="سلوكية">
-                    <option value="عنف لفظي">عنف لفظي</option>
-                    <option value="عنف جسدي">عنف جسدي</option>
-                    <option value="تنمر">تنمر</option>
-                    <option value="سوء أدب">سوء أدب</option>
-                  </optgroup>
-                  <optgroup label="أكاديمية">
-                    <option value="تأخر عن الحصة">تأخر عن الحصة</option>
-                    <option value="غياب بدون إذن">غياب بدون إذن</option>
-                    <option value="عدم إحضار الواجب">عدم إحضار الواجب</option>
-                    <option value="غش">غش</option>
-                  </optgroup>
-                  <optgroup label="مظهر">
-                    <option value="مخالفة الزي">مخالفة الزي</option>
-                    <option value="استخدام الجوال">استخدام الجوال</option>
-                  </optgroup>
-                  <optgroup label="أخرى">
-                    <option value="مخالفة أخرى">مخالفة أخرى</option>
-                  </optgroup>
-                </select>
+            <!-- تصنيف المخالفة (Searchable Dropdown) -->
+            <div class="form-group searchable-group">
+              <label for="category-search">تصنيف المخالفة <span class="required">*</span></label>
+              <div class="searchable-wrapper">
+                <input type="text" id="category-search" placeholder="ابحث عن التصنيف..." autocomplete="off" required />
+                <input type="hidden" id="violation-category" required />
+                <div class="search-options" id="category-options" hidden>
+                  <!-- Options will be populated via JS -->
+                </div>
                 <span class="select-arrow">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="6 9 12 15 18 9"/>
@@ -143,13 +126,20 @@
               </div>
             </div>
 
-            <!-- معدل التكرار -->
+            <!-- معدل التكرار (Dropdown) -->
             <div class="form-group">
               <label for="repeat-count">معدل التكرار <span class="required">*</span></label>
-              <div class="number-input-wrapper">
-                <button type="button" class="num-btn" id="num-minus" aria-label="تقليل">−</button>
-                <input type="number" id="repeat-count" value="1" min="1" max="99" required />
-                <button type="button" class="num-btn" id="num-plus" aria-label="زيادة">+</button>
+              <div class="select-wrapper">
+                <select id="repeat-count" required>
+                  <option value="غير متكرر">غير متكرر</option>
+                  <option value="متكرر">متكرر</option>
+                  <option value="متكرر جداً">متكرر جداً</option>
+                </select>
+                <span class="select-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </span>
               </div>
             </div>
 
