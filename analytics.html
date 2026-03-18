@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحليلات والإحصائيات — We School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .analytics-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 198, 255, 0.3);
+        }
+
+        .custom-date-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-date-picker input {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 3px;
+            background: var(--accent);
+            opacity: 0.5;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .kpi-trend {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                justify-content: center;
+            }
+            .custom-date-picker {
+                justify-content: center;
+            }
+        }
+
+        .empty-state-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px dashed var(--border);
+            text-align: center;
+            gap: 16px;
+        }
+
+        .empty-state-container svg {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            width: fit-content;
+            transition: opacity 0.2s;
+        }
+
+        .back-btn:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== TOP NAV ===== -->
+    <nav class="topnav">
+        <div class="topnav-inner">
+            <div class="nav-brand">
+                <div class="nav-logo">
+                    <img src="public/images/school-logo.webp" alt="School Logo" class="nav-logo-img">
+                </div>
+                <span class="nav-title">مدرسة وي للتكنولوجيا التطبيقية</span>
+            </div>
+
+            <div class="nav-actions">
+                <div class="user-badge">
+                    <div class="user-avatar" id="user-avatar">ق</div>
+                    <span class="user-name" id="user-display-name">جاري التحميل...</span>
+                </div>
+                <a href="dashboard.html" class="btn-logout" title="العودة للرئيسية" style="text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>الرئيسية</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <a href="dashboard.html" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            العودة للوحة تسجيل المخالفات
+        </a>
+
+        <div class="analytics-container" id="analytics-content">
+            <!-- Filter Section -->
+            <section class="filter-section">
+                <div class="filter-group" id="date-filters">
+                    <button class="filter-btn active" data-filter="today">اليوم</button>
+                    <button class="filter-btn" data-filter="yesterday">أمس</button>
+                    <button class="filter-btn" data-filter="7days">آخر 7 أيام</button>
+                    <button class="filter-btn" data-filter="30days">آخر 30 يوم</button>
+                    <button class="filter-btn" data-filter="custom">مخصص</button>
+                </div>
+
+                <div class="custom-date-picker" id="custom-date-container" style="display: none;">
+                    <input type="date" id="start-date" aria-label="تاريخ البداية">
+                    <span>إلى</span>
+                    <input type="date" id="end-date" aria-label="تاريخ النهاية">
+                </div>
+            </section>
+
+            <!-- KPI Cards -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label">إجمالي المخالفات</span>
+                    <span class="kpi-value" id="total-violations">0</span>
+                    <span class="kpi-trend" id="total-trend"></span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">أكثر تصنيف تكراراً</span>
+                    <span class="kpi-value" id="top-category" style="font-size: 1.2rem;">—</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">نسبة المخالفات المتكررة جداً</span>
+                    <span class="kpi-value" id="very-frequent-ratio">0%</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">عدد الطلاب الفريدين</span>
+                    <span class="kpi-value" id="unique-students">0</span>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">توزيع معدلات التكرار</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="repeatChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">أكثر 10 تصنيفات مخالفة</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card full-width" id="line-chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">اتجاه المخالفات مع الوقت</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state-container" id="empty-state">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p class="empty-state-text">لا توجد بيانات متاحة في هذه الفترة الزمنية المحددة.</p>
+            <button class="btn-primary" onclick="location.reload()">تحديث الصفحة</button>
+        </div>
+    </main>
+
+    <script type="module" src="js/analytics.js"></script>
+</body>
+</html>
