@@ -10,10 +10,6 @@ import {
 import {
   collection,
   addDoc,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -36,19 +32,13 @@ const clearBtn        = document.getElementById("clear-btn");
 const successToast    = document.getElementById("success-toast");
 const errorToast      = document.getElementById("error-toast");
 const errorToastMsg   = document.getElementById("error-toast-msg");
-const violationsCount = document.getElementById("violations-count");
-const loadingState    = document.getElementById("loading-state");
-const emptyState      = document.getElementById("empty-state");
-const tableScroll     = document.getElementById("table-scroll");
-const tbody           = document.getElementById("violations-tbody");
-
-// Number input controls (Old - kept for reference or removal)
-const repeatInput = document.getElementById("repeat-count");
 
 // Searchable Dropdown elements
 const categorySearch = document.getElementById("category-search");
 const categoryHidden = document.getElementById("violation-category");
 const categoryOptions = document.getElementById("category-options");
+
+const repeatInput = document.getElementById("repeat-count");
 
 const VIOLATION_CATEGORIES = [
   "تعطيل الحصص الدراسية للمعلم أثناء", "عدم إحضار الأدوات", "الهروب من المدرسة", "عدم تهذيب الشعر",
@@ -80,9 +70,6 @@ onAuthStateChanged(auth, (user) => {
   const name = user.displayName || user.email.split("@")[0];
   userDisplayName.textContent = name;
   userAvatar.textContent = name.charAt(0).toUpperCase();
-
-  // Start listening to violations
-  listenToViolations(user.uid);
 });
 
 // =============================================
@@ -170,7 +157,7 @@ form.addEventListener("submit", async (e) => {
     { id: "student-name",        val: studentName },
     { id: "class-name",          val: className },
     { id: "violation-desc",      val: violationDesc },
-    { id: "category-search",     val: category }, // Check hidden category value
+    { id: "category-search",     val: category }, 
   ].forEach(({ id, val }) => {
     const el = document.getElementById(id);
     if (!val) { el.classList.add("invalid"); valid = false; }
@@ -201,9 +188,7 @@ form.addEventListener("submit", async (e) => {
     await addDoc(collection(db, "violations"), docData);
 
     // ---- Sync to Google Sheets via Apps Script ----
-    if (APPS_SCRIPT_URL !== "PASTE_YOUR_APPS_SCRIPT_URL_HERE") {
-      syncToSheets(docData);
-    }
+    syncToSheets(docData);
 
     showToast("success");
     clearForm();
@@ -222,18 +207,12 @@ async function syncToSheets(data) {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PASTE_YOUR_APPS_SCRIPT_URL")) return;
 
   try {
-    // Filter out unwanted fields (Firestore objects and internal IDs)
-    // We remove timestamp because Apps Script generates its own for consistency.
     const { timestamp, leaderUid, leaderEmail, ...filteredData } = data;
-
-    // We use Form Data (URLSearchParams) as it's the most compatible with Apps Script no-cors mode
     const formData = new URLSearchParams();
     for (const key in filteredData) {
       formData.append(key, filteredData[key]);
     }
 
-    // Since we're using no-cors, we won't get a response body.
-    // This is a standard limitation for public Apps Script web apps.
     await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -259,57 +238,6 @@ function clearForm() {
   categoryHidden.value = "";
   repeatInput.value = "غير متكرر";
   form.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
-}
-
-// =============================================
-//  REAL-TIME VIOLATIONS LISTENER
-// =============================================
-function listenToViolations(uid) {
-  const q = query(
-    collection(db, "violations"),
-    where("leaderUid", "==", uid),
-    orderBy("timestamp", "desc")
-  );
-
-  onSnapshot(q, (snapshot) => {
-    loadingState.hidden = true;
-
-    if (snapshot.empty) {
-      emptyState.hidden  = false;
-      tableScroll.hidden = true;
-      violationsCount.textContent = "0";
-      return;
-    }
-
-    emptyState.hidden  = true;
-    tableScroll.hidden = false;
-    violationsCount.textContent = snapshot.size;
-
-    tbody.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const d = doc.data();
-      const ts = d.timestamp?.toDate();
-      const dateStr = ts
-        ? ts.toLocaleDateString("ar-EG", { day: "2-digit", month: "short", year: "numeric" })
-        : "—";
-
-      const tr = document.createElement("tr");
-      const repeatClass = d.repeatCount === "متكرر جداً" ? "high" : (d.repeatCount === "متكرر" ? "med" : "");
-      tr.innerHTML = `
-        <td>${escapeHtml(d.studentName)}</td>
-        <td><span class="badge">${escapeHtml(d.className)}</span></td>
-        <td>${escapeHtml(d.category)}</td>
-        <td><span class="repeat-pill ${repeatClass}">${escapeHtml(d.repeatCount)}</span></td>
-        <td class="date-cell">${dateStr}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }, (err) => {
-    console.error("Firestore snapshot error:", err);
-    loadingState.hidden = true;
-    emptyState.hidden   = false;
-    tableScroll.hidden  = true;
-  });
 }
 
 // =============================================

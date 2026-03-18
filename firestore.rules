@@ -6,10 +6,6 @@ service cloud.firestore {
     // VIOLATIONS COLLECTION
     match /violations/{docId} {
 
-      // ✅ A leader can READ only their own violations
-      allow read: if request.auth != null
-                  && request.auth.uid == resource.data.leaderUid;
-
       // ✅ A logged-in leader can CREATE a violation, only for themselves
       allow create: if request.auth != null
                     && request.resource.data.leaderUid == request.auth.uid
@@ -17,8 +13,7 @@ service cloud.firestore {
                     && request.resource.data.className    is string
                     && request.resource.data.violationDesc is string
                     && request.resource.data.category     is string
-                    && request.resource.data.repeatCount  is number
-                    && request.resource.data.repeatCount >= 1;
+                    && request.resource.data.repeatCount  is string;
 
       // ❌ Nobody can update or delete (immutable records)
       allow update, delete: if false;

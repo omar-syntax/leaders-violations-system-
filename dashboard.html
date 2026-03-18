@@ -69,8 +69,7 @@
       <span id="error-toast-msg">حدث خطأ، حاول مرة أخرى</span>
     </div>
 
-    <div class="page-grid">
-
+    <div class="page-single">
       <!-- ===== VIOLATIONS FORM ===== -->
       <section class="card form-card">
         <div class="card-header">
@@ -166,56 +165,6 @@
           </div>
         </form>
       </section>
-
-      <!-- ===== RECENT VIOLATIONS ===== -->
-      <section class="card table-card">
-        <div class="card-header">
-          <div class="card-icon card-icon--secondary">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-            </svg>
-          </div>
-          <div>
-            <h2 class="card-title">المخالفات المسجلة</h2>
-            <p class="card-subtitle">آخر <span id="violations-count">0</span> مخالفة سجلتها</p>
-          </div>
-        </div>
-
-        <div class="table-wrapper" id="table-wrapper">
-          <!-- Loading state -->
-          <div class="empty-state" id="loading-state">
-            <div class="spinner-large"></div>
-            <p>جارٍ تحميل البيانات...</p>
-          </div>
-
-          <!-- Empty state -->
-          <div class="empty-state" id="empty-state" hidden>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
-            <p>لا توجد مخالفات مسجلة بعد</p>
-          </div>
-
-          <!-- Table -->
-          <div class="table-scroll" id="table-scroll" hidden>
-            <table>
-              <thead>
-                <tr>
-                  <th>اسم الطالب</th>
-                  <th>الفصل</th>
-                  <th>التصنيف</th>
-                  <th>التكرار</th>
-                  <th>التاريخ</th>
-                </tr>
-              </thead>
-              <tbody id="violations-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
     </div>
   </main>
 
